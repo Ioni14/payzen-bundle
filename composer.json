@@ -1,0 +1,31 @@
+{
+    "name": "ioni/payzen-bundle",
+    "license": "MIT",
+    "type": "symfony-bundle",
+    "description": "Payment gateway for Payzen",
+    "authors": [
+        {
+            "name": "Thomas Talbot",
+            "email": "talbot.thomas14@gmail.com"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "Ioni\\PayzenBundle\\": ""
+        },
+        "exclude-from-classmap": [
+            "/Tests/"
+        ]
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Ioni\\PayzenBundle\\Tests\\": "Tests"
+        }
+    },
+    "require": {
+        "php": ">=7.0",
+        "symfony/framework-bundle": "~2.8|~3.0"
+    },
+    "require-dev": {
+    }
+}

@@ -1,0 +1,3 @@
+ioni_payzen_homepage:
+    path:     /
+    defaults: { _controller: IoniPayzenBundle:Default:index }

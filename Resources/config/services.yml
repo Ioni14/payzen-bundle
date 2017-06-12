@@ -1,0 +1,4 @@
+services:
+#    ioni_payzen.example:
+#        class: Ioni\PayzenBundle\Example
+#        arguments: ["@service_id", "plain_value", "%parameter%"]
