@@ -10,6 +10,7 @@ use Ioni\PayzenBundle\Model\TransactionShipping;
 use Ioni\PayzenBundle\Model\TransactionView;
 use Symfony\Component\Filesystem\Exception\IOException;
 use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 /**
  * Class FormFieldsGenerator.
@@ -19,36 +20,12 @@ use Symfony\Component\Filesystem\Filesystem;
  */
 class FormFieldsGenerator
 {
-    const MODE_PROD = 'PRODUCTION';
-    const MODE_TEST = 'TEST';
-
     /**
      * Identifier of the shop.
      *
      * @var string
      */
     private $siteId;
-
-    /**
-     * Mode of the transaction : TEST|PRODUCTION.
-     *
-     * @var string
-     */
-    private $ctxMode;
-
-    /**
-     * Certificate for PRODUCTION mode.
-     *
-     * @var string
-     */
-    private $certificateProd;
-
-    /**
-     * Certificate for TEST mode.
-     *
-     * @var string
-     */
-    private $certificateTest;
 
     /**
      * Filepath for the generation of transaction numbers.
@@ -74,10 +51,22 @@ class FormFieldsGenerator
     protected $signature;
 
     /**
+     * @var UrlGeneratorInterface
+     */
+    protected $router;
+
+    /**
+     * @var SignatureHandler
+     */
+    protected $signatureHandler;
+
+    /**
      * FormFieldsGenerator constructor.
      */
-    public function __construct()
+    public function __construct(UrlGeneratorInterface $router, SignatureHandler $signatureHandler)
     {
+        $this->router = $router;
+        $this->signatureHandler = $signatureHandler;
         $this->fields = [];
     }
 
@@ -207,9 +196,11 @@ class FormFieldsGenerator
             'vads_payment_config' => 'SINGLE',
             'vads_site_id' => $this->siteId,
             'vads_capture_delay' => 0,
+            'vads_url_return' => $this->router->generate('ioni_payzen_payment_return', [], UrlGeneratorInterface::ABSOLUTE_URL),
+            'vads_return_mode' => 'POST',
 
             'vads_amount' => $transaction->getAmount(),
-            'vads_ctx_mode' => $this->ctxMode,
+            'vads_ctx_mode' => $this->signatureHandler->getCtxMode(),
             'vads_currency' => $transaction->getCurrency(),
             'vads_trans_date' => $transaction->getUtcCreatedAt()->format('YmdHis'),
             'vads_trans_id' => $transaction->getNumber(),
@@ -218,7 +209,7 @@ class FormFieldsGenerator
         $this->computeCustomerFields($transaction->getCustomer());
         $this->computeShippingFields($transaction->getShipping());
         $this->computeProductsFields($transaction->getProducts());
-        $this->computeSignature();
+        $this->signature = $this->signatureHandler->compute($this->fields);
     }
 
     /**
@@ -234,28 +225,6 @@ class FormFieldsGenerator
     }
 
     /**
-     * Computes all fields into a signature.
-     * Does not modify $fields.
-     *
-     * @return string the signature
-     */
-    protected function computeSignature(): string
-    {
-        $certificate = $this->getCertificate();
-        ksort($this->fields);
-
-        $this->signature = '';
-        foreach ($this->fields as $key => $value) {
-            if (strpos($key, 'vads_') === 0) {
-                $this->signature .= $value.'+';
-            }
-        }
-        $this->signature = sha1($this->signature.$certificate);
-
-        return $this->signature;
-    }
-
-    /**
      * Set SiteId.
      *
      * @param string $siteId Identifier of the shop
@@ -266,19 +235,6 @@ class FormFieldsGenerator
     }
 
     /**
-     * Set CtxMode.
-     *
-     * @param string $ctxMode Mode of the transaction : TEST|PRODUCTION (by default TEST)
-     */
-    public function setCtxMode(string $ctxMode)
-    {
-        $this->ctxMode = $ctxMode;
-        if (!in_array($this->ctxMode, ['TEST', 'PRODUCTION'], true)) {
-            $this->ctxMode = 'TEST';
-        }
-    }
-
-    /**
      * Set TransNumbersPath.
      *
      * @param string $transNumbersPath
@@ -286,42 +242,5 @@ class FormFieldsGenerator
     public function setTransNumbersPath(string $transNumbersPath)
     {
         $this->transNumbersPath = $transNumbersPath;
-    }
-
-    /**
-     * Set CertificateProd.
-     *
-     * @param string $certificateProd
-     */
-    public function setCertificateProd(string $certificateProd)
-    {
-        $this->certificateProd = $certificateProd;
-    }
-
-    /**
-     * Set CertificateTest.
-     *
-     * @param string $certificateTest
-     */
-    public function setCertificateTest(string $certificateTest)
-    {
-        $this->certificateTest = $certificateTest;
-    }
-
-    /**
-     * Returns the right certificate for the selected mode.
-     *
-     * @return string the certificate
-     */
-    protected function getCertificate(): string
-    {
-        switch ($this->ctxMode) {
-            case self::MODE_TEST:
-                return $this->certificateTest;
-            case self::MODE_PROD:
-                return $this->certificateProd;
-        }
-
-        return '';
     }
 }

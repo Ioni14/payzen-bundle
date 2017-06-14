@@ -1,3 +1,9 @@
-ioni_payzen_homepage:
-    path:     /
-    defaults: { _controller: IoniPayzenBundle:Default:index }
+ioni_payzen_payment_return:
+    path:     /return
+    defaults: { _controller: IoniPayzenBundle:Transaction:return }
+    methods: ['POST']
+
+ioni_payzen_instant_payment_notification:
+    path:     /payment-notification
+    defaults: { _controller: IoniPayzenBundle:Transaction:paymentNotification }
+    methods: ['POST']

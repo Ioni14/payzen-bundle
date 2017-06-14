@@ -5,6 +5,14 @@ services:
         tags:
           - { name: twig.extension }
 
+    ioni_payzen.signature_handler:
+        class: Ioni\PayzenBundle\Service\SignatureHandler
+        arguments: []
+
     ioni_payzen.form_fields_generator:
         class: Ioni\PayzenBundle\Service\FormFieldsGenerator
+        arguments: ['@router', '@ioni_payzen.signature_handler']
+
+    ioni_payzen.payment_notification_handler:
+        class: Ioni\PayzenBundle\Service\PaymentNotificationHandler
         arguments: []
