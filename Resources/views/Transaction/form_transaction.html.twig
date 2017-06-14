@@ -1,0 +1,10 @@
+{{ dump() }}
+<form action="https://secure.payzen.eu/vads-payment/" method="post" {% block form_transaction_attrs %}{% endblock %}>
+    {% for field, value in fields %}
+        <input type="hidden" name="{{ field }}" value="{{ value }}" />
+    {% endfor %}
+    <input type="hidden" name="signature" value="{{ signature }}" />
+    {%- block form_transaction_submit -%}
+        <button type="submit">Envoyer</button>
+    {%- endblock -%}
+</form>

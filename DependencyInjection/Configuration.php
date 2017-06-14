@@ -20,9 +20,21 @@ class Configuration implements ConfigurationInterface
         $treeBuilder = new TreeBuilder();
         $rootNode = $treeBuilder->root('ioni_payzen');
 
-        // Here you should define the parameters that are allowed to
-        // configure your bundle. See the documentation linked above for
-        // more information on that topic.
+        $rootNode
+            ->children()
+                ->scalarNode('site_id')->cannotBeEmpty()->end()
+                ->scalarNode('ctx_mode')->defaultValue('TEST')->cannotBeEmpty()->end()
+                ->scalarNode('trans_numbers_path')->cannotBeEmpty()->end()
+                ->scalarNode('wsdl')->end()
+//                ->scalarNode('namespace')->end()
+                ->arrayNode('certificates')
+                    ->children()
+                        ->scalarNode('prod')->end()
+                        ->scalarNode('test')->end()
+                    ->end()
+                ->end()
+            ->end()
+        ;
 
         return $treeBuilder;
     }

@@ -1,4 +1,10 @@
 services:
-#    ioni_payzen.example:
-#        class: Ioni\PayzenBundle\Example
-#        arguments: ["@service_id", "plain_value", "%parameter%"]
+    ioni_payzen.twig.twig_extension:
+        class: Ioni\PayzenBundle\Twig\TwigExtension
+        public: false
+        tags:
+          - { name: twig.extension }
+
+    ioni_payzen.form_fields_generator:
+        class: Ioni\PayzenBundle\Service\FormFieldsGenerator
+        arguments: []

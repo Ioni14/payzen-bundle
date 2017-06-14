@@ -19,10 +19,18 @@ class IoniPayzenExtension extends Extension
      */
     public function load(array $configs, ContainerBuilder $container)
     {
+        $loader = new Loader\YamlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
+        $loader->load('services.yml');
+
         $configuration = new Configuration();
         $config = $this->processConfiguration($configuration, $configs);
 
-        $loader = new Loader\YamlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
-        $loader->load('services.yml');
+        // injects parameters to the service formFieldsGenerator
+        $formFieldsGeneratorDef = $container->getDefinition('ioni_payzen.form_fields_generator');
+        $formFieldsGeneratorDef->addMethodCall('setCtxMode', [$config['ctx_mode']]);
+        $formFieldsGeneratorDef->addMethodCall('setTransNumbersPath', [$config['trans_numbers_path']]);
+        $formFieldsGeneratorDef->addMethodCall('setSiteId', [$config['site_id']]);
+        $formFieldsGeneratorDef->addMethodCall('setCertificateProd', [$config['certificates']['prod'] ?? '']);
+        $formFieldsGeneratorDef->addMethodCall('setCertificateTest', [$config['certificates']['test'] ?? '']);
     }
 }
