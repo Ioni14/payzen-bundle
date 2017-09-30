@@ -196,15 +196,19 @@ class FormFieldsGenerator
             'vads_payment_config' => 'SINGLE',
             'vads_site_id' => $this->siteId,
             'vads_capture_delay' => 0,
-            'vads_url_return' => $this->router->generate('ioni_payzen_payment_return', [], UrlGeneratorInterface::ABSOLUTE_URL),
             'vads_return_mode' => 'POST',
-
+            'vads_url_return' => $this->router->generate('ioni_payzen_payment_return',
+                [], UrlGeneratorInterface::ABSOLUTE_URL
+            ),
+            'vads_url_check' => $this->router->generate('ioni_payzen_instant_payment_notification',
+                [], UrlGeneratorInterface::ABSOLUTE_URL
+            ),
             'vads_amount' => $transaction->getAmount(),
             'vads_ctx_mode' => $this->signatureHandler->getCtxMode(),
             'vads_currency' => $transaction->getCurrency(),
             'vads_trans_date' => $transaction->getUtcCreatedAt()->format('YmdHis'),
             'vads_trans_id' => $transaction->getNumber(),
-            'vads_order_id' => $transaction->getOrderId(),
+            'vads_order_id' => $transaction->getId(), // A transaction should be linked oneToOne to an order
         ];
         $this->computeCustomerFields($transaction->getCustomer());
         $this->computeShippingFields($transaction->getShipping());

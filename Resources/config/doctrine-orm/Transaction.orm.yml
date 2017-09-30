@@ -1,0 +1,37 @@
+Ioni\PayzenBundle\Model\Transaction:
+    type: entity
+    table: ioni_payzen_transaction
+    id:
+        id:
+            type: integer
+            generator:
+                strategy: AUTO
+    fields:
+        amount:
+            type: integer
+        currency:
+            type: string
+            length: 3
+            options:
+                fixed: true
+        number:
+            type: string
+            length: 6
+            options:
+                fixed: true
+        status:
+            type: string
+            length: 15
+        resultCode:
+            type: string
+            length: 2
+            nullable: true
+            options:
+                fixed: true
+        createdAt:
+            type: datetime
+        updatedAt:
+            type: datetime
+#customer onetoone or manytoone
+#shipping onetoone or manytoone
+#products onetomany

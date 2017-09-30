@@ -36,3 +36,13 @@ class AppKernel extends Kernel
     // ...
 }
 ```
+
+TODO
+====
+
+* vads_action_mode : SILENT and IFRAME
+* Payzen Web Services
+* vads_page_action : REGISTER*, SUBSCRIBE...
+* vads_url_check_src : BO, BATCH_AUTO, REC, MERCH_BO
+* vads_operation_type : CREDIT
+* vads_payment_config : MULTI

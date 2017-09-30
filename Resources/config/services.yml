@@ -15,4 +15,4 @@ services:
 
     ioni_payzen.payment_notification_handler:
         class: Ioni\PayzenBundle\Service\PaymentNotificationHandler
-        arguments: []
+        arguments: ['@ioni_payzen.signature_handler', '@event_dispatcher', '@doctrine']

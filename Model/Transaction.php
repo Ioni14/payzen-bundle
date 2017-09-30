@@ -16,11 +16,18 @@ use Symfony\Component\Validator\Constraints as Assert;
 class Transaction
 {
     const STATUS_WAITING = 'waiting';
-    const STATUS_COMPLETE = 'complete';
-    const STATUSES = [self::STATUS_WAITING, self::STATUS_COMPLETE];
+    const STATUS_REJECTED = 'rejected';
+    const STATUS_SUCCEEDED = 'succeeded';
+    const STATUSES = [self::STATUS_WAITING, self::STATUS_REJECTED, self::STATUS_SUCCEEDED];
+
+    /**
+     * @var mixed
+     */
+    protected $id;
 
     /**
      * Total amount in the smallest currency unit.
+     * @see https://payzen.io/en-EN/form-payment/standard-payment/vads-amount.html
      *
      * @var int
      *
@@ -44,6 +51,7 @@ class Transaction
     /**
      * 6 digits from 000000 to 899999.
      * Must be unique on one day.
+     * @see https://payzen.io/en-EN/form-payment/standard-payment/vads-trans-id.html
      *
      * @var string
      *
@@ -53,16 +61,24 @@ class Transaction
     protected $number;
 
     /**
-     * In order to retrieve the order after the Payzen response.
-     *
-     * @var string
-     */
-    protected $orderId;
-
-    /**
      * @var string
      */
     protected $status;
+
+    /**
+     * field vads_auth_result from Payzen
+     * @see https://payzen.io/en-EN/form-payment/standard-payment/vads-auth-result.html
+     *
+     * @var string
+     */
+    protected $resultCode;
+
+    /**
+     * the fields returned by the platform.
+     *
+     * @var array
+     */
+    protected $response;
 
     /**
      * @var TransactionCustomer;
@@ -98,12 +114,23 @@ class Transaction
         $this->status = self::STATUS_WAITING;
         $this->customer = new TransactionCustomer();
         $this->products = new ArrayCollection();
+        $this->response = [];
         $this->createdAt = new \DateTime();
         $this->updatedAt = new \DateTime();
     }
 
     /**
-     * Get amount.
+     * Get Id.
+     *
+     * @return mixed
+     */
+    public function getId()
+    {
+        return $this->id;
+    }
+
+    /**
+     * Get Amount.
      *
      * @return int
      */
@@ -123,6 +150,8 @@ class Transaction
     }
 
     /**
+     * Get Currency.
+     *
      * @return string|null
      */
     public function getCurrency()
@@ -136,26 +165,6 @@ class Transaction
     public function setCurrency(string $currency)
     {
         $this->currency = $currency;
-    }
-
-    /**
-     * Get OrderId.
-     *
-     * @return string|null
-     */
-    public function getOrderId()
-    {
-        return $this->orderId;
-    }
-
-    /**
-     * Set OrderId.
-     *
-     * @param string $orderId
-     */
-    public function setOrderId(string $orderId)
-    {
-        $this->orderId = $orderId;
     }
 
     /**
@@ -194,6 +203,38 @@ class Transaction
         if (in_array($this->status, self::STATUSES, true)) {
             $this->status = $status;
         }
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getResultCode()
+    {
+        return $this->resultCode;
+    }
+
+    /**
+     * @param string $resultCode
+     */
+    public function setResultCode(string $resultCode)
+    {
+        $this->resultCode = $resultCode;
+    }
+
+    /**
+     * @return array|null
+     */
+    public function getResponse()
+    {
+        return $this->response;
+    }
+
+    /**
+     * @param array|null $response
+     */
+    public function setResponse(array $response = null)
+    {
+        $this->response = $response;
     }
 
     /**

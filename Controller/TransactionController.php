@@ -2,7 +2,9 @@
 
 namespace Ioni\PayzenBundle\Controller;
 
+use Ioni\PayzenBundle\Exception\CorruptedPaymentNotificationException;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -24,9 +26,9 @@ class TransactionController extends Controller
      */
     public function returnAction(Request $request): Response
     {
-        $this->get('logger')->addDebug('[returnAction] request="'.json_encode($request->request).'"');
+        $this->get('logger')->addInfo('[IoniPayzenBundle] returnAction : request="'.json_encode($request->request).'"');
 
-        return new Response('', 204);
+        return new JsonResponse(null, 204);
     }
 
     /**
@@ -38,11 +40,15 @@ class TransactionController extends Controller
      */
     public function paymentNotificationAction(Request $request): Response
     {
-        $this->get('logger')->addDebug('[paymentNotificationAction] request="'.json_encode($request->request).'"');
+        $this->get('logger')->addInfo('[IoniPayzenBundle] paymentNotificationAction : request="'.json_encode($request->request).'"');
 
         $handler = $this->get('ioni_payzen.payment_notification_handler');
-        $handler->handle($request);
+        try {
+            $handler->handle($request);
+        } catch (CorruptedPaymentNotificationException $e) {
+            return new JsonResponse(['error' => $e->getMessage()], 400);
+        }
 
-        return new Response('', 204);
+        return new JsonResponse(null, 204);
     }
 }
