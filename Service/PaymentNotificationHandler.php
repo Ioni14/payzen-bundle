@@ -110,12 +110,11 @@ class PaymentNotificationHandler
 
 
 
-
-
         // TODO : service for TransactionErrors ?
 
         // traitement erreurs
 
+        dump('dispatch events');
 
         if ($transaction->getResultCode() !== '00') {
             $transaction->setStatus(Transaction::STATUS_REJECTED);
@@ -125,6 +124,8 @@ class PaymentNotificationHandler
             $transaction->setStatus(Transaction::STATUS_SUCCEEDED);
             $transaction = $this->dispatcher->dispatch(TransactionEvent::SUCCEEDED_EVENT, new TransactionEvent($transaction));
         }
+
+        dump($transaction);
 
         $transaction->setUpdatedAt(new \DateTime());
         $manager = $this->registry->getManager();

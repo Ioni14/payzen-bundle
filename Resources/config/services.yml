@@ -1,18 +1,24 @@
+parameters:
+    ioni_payzen.twig.twig_extension.class: Ioni\PayzenBundle\Twig\TwigExtension
+    ioni_payzen.signature_handler.class: Ioni\PayzenBundle\Service\SignatureHandler
+    ioni_payzen.form_fields_generator.class: Ioni\PayzenBundle\Service\FormFieldsGenerator
+    ioni_payzen.payment_notification_handler.class: Ioni\PayzenBundle\Service\PaymentNotificationHandler
+
 services:
     ioni_payzen.twig.twig_extension:
-        class: Ioni\PayzenBundle\Twig\TwigExtension
+        class: '%ioni_payzen.twig.twig_extension.class%'
         public: false
         tags:
           - { name: twig.extension }
 
     ioni_payzen.signature_handler:
-        class: Ioni\PayzenBundle\Service\SignatureHandler
+        class: '%ioni_payzen.signature_handler.class%'
         arguments: []
 
     ioni_payzen.form_fields_generator:
-        class: Ioni\PayzenBundle\Service\FormFieldsGenerator
+        class: '%ioni_payzen.form_fields_generator.class%'
         arguments: ['@router', '@ioni_payzen.signature_handler']
 
     ioni_payzen.payment_notification_handler:
-        class: Ioni\PayzenBundle\Service\PaymentNotificationHandler
+        class: '%ioni_payzen.payment_notification_handler.class%'
         arguments: ['@ioni_payzen.signature_handler', '@event_dispatcher', '@doctrine']

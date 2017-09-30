@@ -34,5 +34,7 @@ class IoniPayzenExtension extends Extension
         $signatureHandlerDef->addMethodCall('setCtxMode', [$config['ctx_mode']]);
         $signatureHandlerDef->addMethodCall('setCertificateProd', [$config['certificates']['prod'] ?? '']);
         $signatureHandlerDef->addMethodCall('setCertificateTest', [$config['certificates']['test'] ?? '']);
+
+        $container->setParameter('payzen_return_route', $config['return_route']);
     }
 }

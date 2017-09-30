@@ -55,6 +55,7 @@ class Transaction
      *
      * @var string
      *
+     * @Assert\NotBlank()
      * @Assert\Length(min="6", max="6")
      * @Assert\Regex(pattern="/^[0-8][0-9]{5}$/")
      */
@@ -117,6 +118,7 @@ class Transaction
         $this->response = [];
         $this->createdAt = new \DateTime();
         $this->updatedAt = new \DateTime();
+        $this->number = '000000';
     }
 
     /**

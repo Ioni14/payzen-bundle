@@ -33,6 +33,7 @@ class Configuration implements ConfigurationInterface
                         ->scalarNode('test')->end()
                     ->end()
                 ->end()
+                ->scalarNode('return_route')->end()
             ->end()
         ;
 

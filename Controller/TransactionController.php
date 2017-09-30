@@ -28,6 +28,11 @@ class TransactionController extends Controller
     {
         $this->get('logger')->addInfo('[IoniPayzenBundle] returnAction : request="'.json_encode($request->request).'"');
 
+        $returnRoute = $this->getParameter('payzen_return_route');
+        if ($returnRoute !== null) {
+            return $this->redirectToRoute($returnRoute);
+        }
+
         return new JsonResponse(null, 204);
     }
 
