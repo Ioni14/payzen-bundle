@@ -122,7 +122,7 @@ class PaymentNotificationHandler
         } else {
             // success
             $transaction->setStatus(Transaction::STATUS_SUCCEEDED);
-            $transaction = $this->dispatcher->dispatch(TransactionEvent::SUCCEEDED_EVENT, new TransactionEvent($transaction));
+            $transaction = $this->dispatcher->dispatch(TransactionEvent::SUCCEEDED_EVENT, new TransactionEvent($transaction))->getTransaction();
         }
 
         dump($transaction);

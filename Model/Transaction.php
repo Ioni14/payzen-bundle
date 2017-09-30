@@ -312,9 +312,9 @@ class Transaction
     /**
      * Get CreatedAt.
      *
-     * @return \DateTime
+     * @return \DateTimeInterface
      */
-    public function getCreatedAt(): \DateTime
+    public function getCreatedAt(): \DateTimeInterface
     {
         return $this->createdAt;
     }
@@ -323,9 +323,9 @@ class Transaction
      * Get CreatedAt in UTC timezone.
      * Does not modify $createdAt.
      *
-     * @return \DateTime
+     * @return \DateTimeInterface
      */
-    public function getUtcCreatedAt(): \DateTime
+    public function getUtcCreatedAt(): \DateTimeInterface
     {
         $date = clone $this->createdAt;
         $date->setTimezone(new \DateTimeZone('UTC'));
@@ -336,9 +336,9 @@ class Transaction
     /**
      * Set CreatedAt.
      *
-     * @param \DateTime $createdAt
+     * @param \DateTimeInterface $createdAt
      */
-    public function setCreatedAt(\DateTime $createdAt)
+    public function setCreatedAt(\DateTimeInterface $createdAt)
     {
         $this->createdAt = $createdAt;
     }
@@ -346,9 +346,9 @@ class Transaction
     /**
      * Get UpdatedAt.
      *
-     * @return \DateTime
+     * @return \DateTimeInterface
      */
-    public function getUpdatedAt(): \DateTime
+    public function getUpdatedAt(): \DateTimeInterface
     {
         return $this->updatedAt;
     }
@@ -356,9 +356,9 @@ class Transaction
     /**
      * Set UpdatedAt.
      *
-     * @param \DateTime $updatedAt
+     * @param \DateTimeInterface $updatedAt
      */
-    public function setUpdatedAt(\DateTime $updatedAt)
+    public function setUpdatedAt(\DateTimeInterface $updatedAt)
     {
         $this->updatedAt = $updatedAt;
     }
