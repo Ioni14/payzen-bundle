@@ -83,16 +83,22 @@ class Transaction
 
     /**
      * @var TransactionCustomer;
+     *
+     * @Assert\Valid()
      */
     protected $customer;
 
     /**
      * @var TransactionShipping
+     *
+     * @Assert\Valid()
      */
     protected $shipping;
 
     /**
      * @var TransactionProduct[]|Collection
+     *
+     * @Assert\Valid()
      */
     protected $products;
 
@@ -282,7 +288,7 @@ class Transaction
     /**
      * Get Products.
      *
-     * @return Collection
+     * @return TransactionProduct[]|Collection
      */
     public function getProducts(): Collection
     {
@@ -297,6 +303,9 @@ class Transaction
     public function addProduct(TransactionProduct $product)
     {
         $this->products->add($product);
+        if ($product->getTransaction() !== $this) {
+            $product->setTransaction($this);
+        }
     }
 
     /**
@@ -307,6 +316,24 @@ class Transaction
     public function removeProduct(TransactionProduct $product)
     {
         $this->products->removeElement($product);
+        if ($product->getTransaction() !== null) {
+            $product->setTransaction(null);
+        }
+    }
+
+    /**
+     * Sums the quantity*amount of products
+     *
+     * @return int
+     */
+    public function computeProductsTotalTTC(): int
+    {
+        $ttc = 0;
+        foreach ($this->products as $product) {
+            $ttc += $product->getAmount() * $product->getQuantity();
+        }
+
+        return $ttc;
     }
 
     /**

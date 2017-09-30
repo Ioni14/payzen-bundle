@@ -23,6 +23,8 @@ class TransactionCustomer extends TransactionIdentifiableData
     protected $customerId;
 
     /**
+     * Civility (Mr, Mrs...)
+     *
      * @var string
      *
      * @Assert\Length(max="63")

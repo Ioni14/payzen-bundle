@@ -98,11 +98,12 @@ class PaymentNotificationHandler
         if (!isset($fields['vads_trans_id']) || $transaction->getNumber() !== $fields['vads_trans_id']) {
             throw new CorruptedPaymentNotificationException('Bad trans id in the response for the transaction '.$transaction->getId());
         }
-
         if (!isset($fields['vads_auth_result'])) {
             throw new CorruptedPaymentNotificationException('No auth result in the response.');
         }
+
         $transaction->setResultCode($fields['vads_auth_result']);
+        $transaction->setResponse($fields);
 
         /** @link https://payzen.io/fr-FR/form-payment/standard-payment/traiter-les-donnees-de-la-reponse.html */
         //$fields['vads_trans_status'] !== 'AUTHORISED';

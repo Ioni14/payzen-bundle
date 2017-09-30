@@ -42,6 +42,11 @@ class TransactionProduct
     ];
 
     /**
+     * @var mixed
+     */
+    protected $id;
+
+    /**
      * @var string
      */
     protected $label;
@@ -83,13 +88,37 @@ class TransactionProduct
     protected $vat;
 
     /**
-     * TransactionProduct constructor.
+     * @var Transaction
      */
-    public function __construct()
+    protected $transaction;
+
+    /**
+     * TransactionProduct constructor.
+     *
+     * @param Transaction|null $transaction
+     */
+    public function __construct(Transaction $transaction = null)
     {
         $this->amount = 0;
         $this->quantity = 1;
         $this->vat = 0.0;
+        $this->transaction = $transaction;
+    }
+
+    /**
+     * @return null|mixed
+     */
+    public function getId()
+    {
+        return $this->id;
+    }
+
+    /**
+     * @return int
+     */
+    public function computeHT(): int
+    {
+        return (int) ($this->amount / (1 + $this->vat / 100.0));
     }
 
     /**
@@ -198,7 +227,7 @@ class TransactionProduct
     /**
      * Get Vat.
      *
-     * @return float
+     * @return float [0, +infinity[
      */
     public function getVat(): float
     {
@@ -213,10 +242,27 @@ class TransactionProduct
     public function setVat(float $vat)
     {
         $this->vat = $vat;
-        if ($this->vat > 100) {
-            $this->vat = 100.0;
-        } elseif ($this->vat < 0) {
+        if ($this->vat < 0) {
             $this->vat = 0.0;
+        }
+    }
+
+    /**
+     * @return null|Transaction
+     */
+    public function getTransaction()
+    {
+        return $this->transaction;
+    }
+
+    /**
+     * @param null|Transaction $transaction
+     */
+    public function setTransaction(Transaction $transaction = null)
+    {
+        $this->transaction = $transaction;
+        if ($transaction !== null && !$transaction->getProducts()->contains($this)) {
+            $transaction->addProduct($this);
         }
     }
 }

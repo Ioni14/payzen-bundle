@@ -32,6 +32,13 @@ Ioni\PayzenBundle\Model\Transaction:
             type: datetime
         updatedAt:
             type: datetime
-#customer onetoone or manytoone
-#shipping onetoone or manytoone
-#products onetomany
+    embedded:
+        customer:
+            class: Ioni\PayzenBundle\Model\TransactionCustomer
+        shipping:
+            class: Ioni\PayzenBundle\Model\TransactionShipping
+    oneToMany:
+        products:
+            targetEntity: Ioni\PayzenBundle\Model\TransactionProduct
+            mappedBy: transaction
+            cascade: ['persist', 'remove']

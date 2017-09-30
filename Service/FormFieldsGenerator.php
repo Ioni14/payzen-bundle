@@ -71,11 +71,11 @@ class FormFieldsGenerator
     }
 
     /**
-     * Generates a new transaction number and fills it into the model.
+     * Generates a new transaction number and returns it.
      *
-     * @param Transaction $transaction
+     * @throw IOException cannot get the lock of the transNumbers file
      */
-    protected function computeTransactionNumber(Transaction $transaction)
+    public function generateTransactionNumber(): string
     {
         $fs = new Filesystem();
         if (!$fs->exists($this->transNumbersPath)) {
@@ -98,7 +98,7 @@ class FormFieldsGenerator
         $file->fwrite($count);
         $file->flock(LOCK_UN);
 
-        $transaction->setNumber(sprintf('%06d', $count));
+        return sprintf('%06d', $count);
     }
 
     /**
@@ -179,12 +179,11 @@ class FormFieldsGenerator
     /**
      * Fills fields of the form from a transaction.
      *
-     * @param Transaction $transaction
+     * @param Transaction $transaction (not modified)
      */
     public function computeFields(Transaction $transaction)
     {
         $this->fields = [];
-        $this->computeTransactionNumber($transaction);
 
         /**
          * vads_page_action {@see https://payzen.io/fr-FR/form-payment/standard-payment/vads-page-action.html}.

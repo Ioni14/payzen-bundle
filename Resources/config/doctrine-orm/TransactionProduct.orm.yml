@@ -1,0 +1,33 @@
+Ioni\PayzenBundle\Model\TransactionProduct:
+    type: entity
+    table: ioni_payzen_transaction_product
+    id:
+        id:
+            type: integer
+            generator:
+                strategy: AUTO
+    fields:
+        label:
+            type: string
+            length: 255
+            nullable: true
+        amount:
+            type: integer
+        type:
+            type: string
+            length: 31
+            nullable: true
+        ref:
+            type: string
+            length: 255
+            nullable: true
+        quantity:
+            type: integer
+            nullable: true
+        vat:
+            type: float
+            nullable: true
+    manyToOne:
+        transaction:
+            targetEntity: Ioni\PayzenBundle\Model\Transaction
+            inversedBy: products
