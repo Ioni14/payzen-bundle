@@ -1,0 +1,25 @@
+Ioni\PayzenBundle\Model\SubscriptionInfos:
+    type: embeddable
+    fields:
+        amount:
+            type: integer
+            nullable: true
+        beginDate:
+            type: datetime
+            nullable: true
+        endDate:
+            type: datetime
+            nullable: true
+        frequency:
+            type: string
+            length: 15
+            nullable: true
+        count:
+            type: integer
+            nullable: true
+        monthDay:
+            type: integer
+            nullable: true
+        interval:
+            type: integer
+            nullable: true

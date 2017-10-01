@@ -20,10 +20,27 @@ class Transaction
     const STATUS_SUCCEEDED = 'succeeded';
     const STATUSES = [self::STATUS_WAITING, self::STATUS_REJECTED, self::STATUS_SUCCEEDED];
 
+    const TYPE_SUBSCRIBE = 'subscribe';
+    const TYPE_PAYMENT = 'payment';
+    const TYPE_PAYMENT_SUBSCRIBE = 'payment_subscribe';
+    const TYPES = [self::TYPE_SUBSCRIBE, self::TYPE_PAYMENT, self::TYPE_PAYMENT_SUBSCRIBE];
+
     /**
      * @var mixed
      */
     protected $id;
+
+    /**
+     * @var string
+     */
+    protected $type;
+
+    /**
+     * @var Alias
+     *
+     * @Assert\Valid()
+     */
+    protected $alias;
 
     /**
      * Total amount in the smallest currency unit.
@@ -31,7 +48,6 @@ class Transaction
      *
      * @var int
      *
-     * @Assert\NotBlank()
      * @Assert\GreaterThan(value="0")
      */
     protected $amount;
@@ -103,6 +119,13 @@ class Transaction
     protected $products;
 
     /**
+     * @var SubscriptionInfos
+     *
+     * @Assert\Valid()
+     */
+    protected $subscriptionInfos;
+
+    /**
      * @var \DateTime
      */
     protected $createdAt;
@@ -117,14 +140,13 @@ class Transaction
      */
     public function __construct()
     {
-        $this->amount = 0;
+        $this->type = self::TYPE_PAYMENT;
         $this->status = self::STATUS_WAITING;
         $this->customer = new TransactionCustomer();
         $this->products = new ArrayCollection();
         $this->response = [];
         $this->createdAt = new \DateTime();
         $this->updatedAt = new \DateTime();
-        $this->number = '000000';
     }
 
     /**
@@ -138,11 +160,70 @@ class Transaction
     }
 
     /**
+     * @return string
+     */
+    public function getType(): string
+    {
+        return $this->type;
+    }
+
+    /**
+     * @param null|string $type
+     */
+    public function setType(string $type = null)
+    {
+        if (!in_array($type, self::TYPES, true)) {
+            return;
+        }
+        $this->type = $type;
+    }
+
+    /**
+     * @return null|SubscriptionInfos
+     */
+    public function getSubscriptionInfos()
+    {
+        return $this->subscriptionInfos;
+    }
+
+    /**
+     * @param null|SubscriptionInfos $subscriptionInfos
+     */
+    public function setSubscriptionInfos(SubscriptionInfos $subscriptionInfos = null)
+    {
+        $this->subscriptionInfos = $subscriptionInfos;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isValidAlias(): bool
+    {
+        return $this->alias !== null && $this->alias->getIdentifier() !== null;
+    }
+
+    /**
+     * @return null|Alias
+     */
+    public function getAlias()
+    {
+        return $this->alias;
+    }
+
+    /**
+     * @param null|Alias $alias
+     */
+    public function setAlias(Alias $alias = null)
+    {
+        $this->alias = $alias;
+    }
+
+    /**
      * Get Amount.
      *
-     * @return int
+     * @return null|int
      */
-    public function getAmount(): int
+    public function getAmount()
     {
         return $this->amount;
     }
@@ -150,9 +231,9 @@ class Transaction
     /**
      * Total amount in the smallest currency unit.
      *
-     * @param int $amount
+     * @param null|int $amount
      */
-    public function setAmount(int $amount)
+    public function setAmount(int $amount = null)
     {
         $this->amount = $amount;
     }

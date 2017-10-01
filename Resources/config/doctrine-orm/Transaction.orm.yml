@@ -9,6 +9,7 @@ Ioni\PayzenBundle\Model\Transaction:
     fields:
         amount:
             type: integer
+            nullable: true
         currency:
             type: string
             length: 3
@@ -17,6 +18,7 @@ Ioni\PayzenBundle\Model\Transaction:
         number:
             type: string
             length: 6
+            nullable: true
             options:
                 fixed: true
         status:
@@ -28,6 +30,9 @@ Ioni\PayzenBundle\Model\Transaction:
             nullable: true
             options:
                 fixed: true
+        response:
+            type: json_array
+            nullable: true
         createdAt:
             type: datetime
         updatedAt:
@@ -37,6 +42,8 @@ Ioni\PayzenBundle\Model\Transaction:
             class: Ioni\PayzenBundle\Model\TransactionCustomer
         shipping:
             class: Ioni\PayzenBundle\Model\TransactionShipping
+        subscriptionInfos:
+            class: Ioni\PayzenBundle\Model\SubscriptionInfos
     oneToMany:
         products:
             targetEntity: Ioni\PayzenBundle\Model\TransactionProduct

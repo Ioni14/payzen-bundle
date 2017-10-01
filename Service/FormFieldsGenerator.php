@@ -3,6 +3,7 @@
 namespace Ioni\PayzenBundle\Service;
 
 use Doctrine\Common\Collections\Collection;
+use Ioni\PayzenBundle\Model\SubscriptionInfos;
 use Ioni\PayzenBundle\Model\Transaction;
 use Ioni\PayzenBundle\Model\TransactionCustomer;
 use Ioni\PayzenBundle\Model\TransactionProduct;
@@ -177,21 +178,85 @@ class FormFieldsGenerator
     }
 
     /**
+     * @param Transaction $transaction
+     */
+    protected function computeSubscriptionFields(Transaction $transaction)
+    {
+        $subscriptionInfos = $transaction->getSubscriptionInfos();
+        if ($subscriptionInfos === null) {
+            return;
+        }
+
+        $this->fields['vads_sub_amount'] = $subscriptionInfos->getAmount();
+        $this->fields['vads_sub_currency'] = $transaction->getCurrency();
+        $this->fields['vads_sub_effect_date'] = $subscriptionInfos->getBeginDate()->format('Ymd');
+
+        $rule = 'RRULE:FREQ=';
+        switch ($subscriptionInfos->getFrequency()) {
+            case SubscriptionInfos::FREQ_DAY:
+                $rule .= 'DAILY;';
+                break;
+            case SubscriptionInfos::FREQ_WEEK:
+                $rule .= 'WEEKLY;';
+                break;
+            case SubscriptionInfos::FREQ_MONTH:
+                $rule .= 'MONTHLY;';
+                break;
+            case SubscriptionInfos::FREQ_YEAR:
+                $rule .= 'YEARLY;';
+                break;
+        }
+        if (in_array($subscriptionInfos->getFrequency(), [SubscriptionInfos::FREQ_YEAR, SubscriptionInfos::FREQ_MONTH], true)) {
+            $byMonthDay = (string) $subscriptionInfos->getMonthDay();
+            for ($i = $subscriptionInfos->getMonthDay() - 1; $i >= 28; --$i) {
+                $byMonthDay = $i.','.$byMonthDay;
+            }
+            $rule .= "BYMONTHDAY={$byMonthDay};";
+        }
+        if ($subscriptionInfos->getCount() > 0) {
+            $rule .= "COUNT={$subscriptionInfos->getCount()};";
+        }
+        $rule .= "INTERVAL={$subscriptionInfos->getInterval()};";
+        if ($subscriptionInfos->getEndDate() !== null) {
+            $rule .= 'UNTIL='.$subscriptionInfos->getEndDate()->format('Ymd').';';
+        }
+        $this->fields['vads_sub_desc'] = $rule;
+    }
+
+    /**
      * Fills fields of the form from a transaction.
      *
      * @param Transaction $transaction (not modified)
      */
     public function computeFields(Transaction $transaction)
     {
-        $this->fields = [];
+        $validAlias = $transaction->isValidAlias();
+        $action = 'PAYMENT';
+        switch ($transaction->getType()) {
+            case Transaction::TYPE_PAYMENT:
+                $action = 'PAYMENT';
+                if (!$validAlias) {
+                    $action = 'REGISTER_PAY';
+                }
+                break;
+            case Transaction::TYPE_SUBSCRIBE:
+                $action = 'SUBSCRIBE';
+                if (!$validAlias) {
+                    $action = 'REGISTER_SUBSCRIBE';
+                }
+                break;
+            case Transaction::TYPE_PAYMENT_SUBSCRIBE:
+                $action = 'REGISTER_PAY_SUBSCRIBE';
+                break;
+        }
 
         /**
          * vads_page_action {@see https://payzen.io/fr-FR/form-payment/standard-payment/vads-page-action.html}.
          */
         $this->fields = [
             'vads_version' => 'V2',
-            'vads_page_action' => 'PAYMENT',
-            'vads_action_mode' => 'INTERACTIVE',
+            'vads_page_action' => $action,
+            'vads_action_mode' => 'INTERACTIVE', /** @see https://payzen.io/fr-FR/form-payment/subscription-token/vads-action-mode.html */
             'vads_payment_config' => 'SINGLE',
             'vads_site_id' => $this->siteId,
             'vads_capture_delay' => 0,
@@ -209,9 +274,13 @@ class FormFieldsGenerator
             'vads_trans_id' => $transaction->getNumber(),
             'vads_order_id' => $transaction->getId(), // A transaction should be linked oneToOne to an order
         ];
+        if ($validAlias) {
+            $this->fields['vads_identifier'] = $transaction->getAlias()->getIdentifier();
+        }
         $this->computeCustomerFields($transaction->getCustomer());
         $this->computeShippingFields($transaction->getShipping());
         $this->computeProductsFields($transaction->getProducts());
+        $this->computeSubscriptionFields($transaction);
         $this->signature = $this->signatureHandler->compute($this->fields);
     }
 
