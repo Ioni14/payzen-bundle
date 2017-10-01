@@ -267,13 +267,15 @@ class FormFieldsGenerator
             'vads_url_check' => $this->router->generate('ioni_payzen_instant_payment_notification',
                 [], UrlGeneratorInterface::ABSOLUTE_URL
             ),
-            'vads_amount' => $transaction->getAmount(),
             'vads_ctx_mode' => $this->signatureHandler->getCtxMode(),
             'vads_currency' => $transaction->getCurrency(),
             'vads_trans_date' => $transaction->getUtcCreatedAt()->format('YmdHis'),
             'vads_trans_id' => $transaction->getNumber(),
             'vads_order_id' => $transaction->getId(), // A transaction should be linked oneToOne to an order
         ];
+        if ($transaction->getType() !== Transaction::TYPE_SUBSCRIBE) {
+            $this->fields['vads_amount'] = $transaction->getAmount();
+        }
         if ($validAlias) {
             $this->fields['vads_identifier'] = $transaction->getAlias()->getIdentifier();
         }
