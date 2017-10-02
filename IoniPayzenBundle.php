@@ -22,7 +22,7 @@ class IoniPayzenBundle extends Bundle
 
         $modelFcqn = 'Ioni\PayzenBundle\Model';
 
-        if (class_exists(DoctrineOrmMappingsPass::class)) {
+        if (class_exists(DoctrineOrmMappingsPass::class) && $container->has('doctrine.orm.entity_manager')) {
             $container->addCompilerPass(
                 DoctrineOrmMappingsPass::createYamlMappingDriver(
                     [realpath(__DIR__.'/Resources/config/doctrine-orm') => $modelFcqn],
