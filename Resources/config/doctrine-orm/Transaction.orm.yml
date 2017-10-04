@@ -7,6 +7,9 @@ Ioni\PayzenBundle\Model\Transaction:
             generator:
                 strategy: AUTO
     fields:
+        type:
+            type: string
+            length: 15
         amount:
             type: integer
             nullable: true
