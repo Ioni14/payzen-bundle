@@ -2,15 +2,15 @@
 
 namespace Ioni\PayzenBundle\DependencyInjection;
 
-use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\Config\FileLocator;
-use Symfony\Component\HttpKernel\DependencyInjection\Extension;
+use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Loader;
+use Symfony\Component\HttpKernel\DependencyInjection\Extension;
 
 /**
- * This is the class that loads and manages your bundle configuration.
+ * Class IoniPayzenExtension.
  *
- * @link http://symfony.com/doc/current/cookbook/bundles/extension.html
+ * @author Thomas Talbot <talbot.thomas14@gmail.com>
  */
 class IoniPayzenExtension extends Extension
 {

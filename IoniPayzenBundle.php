@@ -3,6 +3,7 @@
 namespace Ioni\PayzenBundle;
 
 use Doctrine\Bundle\DoctrineBundle\DependencyInjection\Compiler\DoctrineOrmMappingsPass;
+use Doctrine\ORM\EntityManager;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\HttpKernel\Bundle\Bundle;
 
@@ -22,7 +23,7 @@ class IoniPayzenBundle extends Bundle
 
         $modelFcqn = 'Ioni\PayzenBundle\Model';
 
-        if (class_exists(DoctrineOrmMappingsPass::class) && $container->has('doctrine.orm.entity_manager')) {
+        if (class_exists(DoctrineOrmMappingsPass::class) && class_exists(EntityManager::class)) {
             $container->addCompilerPass(
                 DoctrineOrmMappingsPass::createYamlMappingDriver(
                     [realpath(__DIR__.'/Resources/config/doctrine-orm') => $modelFcqn],
