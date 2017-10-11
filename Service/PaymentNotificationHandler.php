@@ -66,8 +66,8 @@ class PaymentNotificationHandler
             throw new CorruptedPaymentNotificationException('No order id given in the response.');
         }
 
-        if (!isset($fields['vads_url_check_src']) || $fields['vads_url_check_src'] !== 'PAY') {
-            // we want only Payment notification
+        if (!isset($fields['vads_url_check_src']) || !in_array($fields['vads_url_check_src'], ['PAY', 'BO', 'REC'], true)) {
+            // we want only payment or recurrent payment notifications
             return;
         }
 
