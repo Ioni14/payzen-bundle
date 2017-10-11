@@ -30,7 +30,7 @@ class TransactionController extends Controller
 
         $returnRoute = $this->getParameter('payzen_return_route');
         if ($returnRoute !== null) {
-            return $this->redirectToRoute($returnRoute);
+            return $this->redirectToRoute($returnRoute, ['transactionId' => $request->request->get('vads_order_id')]);
         }
 
         return new JsonResponse(null, 204);
