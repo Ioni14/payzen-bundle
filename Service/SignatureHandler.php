@@ -36,13 +36,6 @@ class SignatureHandler
     private $certificateTest;
 
     /**
-     * SignatureHandler constructor.
-     */
-    public function __construct()
-    {
-    }
-
-    /**
      * Computes all fields into a signature.
      *
      * @param array $fields the form fields (example : ['vads_page_action'=>'PAYMENT', 'vads_version'=>'V2'])
