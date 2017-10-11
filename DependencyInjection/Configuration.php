@@ -2,6 +2,7 @@
 
 namespace Ioni\PayzenBundle\DependencyInjection;
 
+use Ioni\PayzenBundle\Service\SignatureHandler;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\Config\Definition\ConfigurationInterface;
 
@@ -23,9 +24,9 @@ class Configuration implements ConfigurationInterface
         $rootNode
             ->children()
                 ->scalarNode('site_id')->cannotBeEmpty()->end()
-                ->scalarNode('ctx_mode')->defaultValue('TEST')->cannotBeEmpty()->end()
-                ->scalarNode('trans_numbers_path')->cannotBeEmpty()->end()
-                ->scalarNode('wsdl')->end()
+                ->enumNode('ctx_mode')->values(SignatureHandler::MODES)->defaultValue(SignatureHandler::MODE_TEST)->cannotBeEmpty()->end()
+                ->scalarNode('trans_numbers_path')->defaultValue('%kernel.root_dir%/../var/payzen/trans_numbers')->cannotBeEmpty()->end()
+                ->scalarNode('wsdl')->defaultValue('https://secure.payzen.eu/vads-ws/v5?wsdl')->end()
 //                ->scalarNode('namespace')->end()
                 ->arrayNode('certificates')
                     ->children()
