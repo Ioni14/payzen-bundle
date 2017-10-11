@@ -5,6 +5,7 @@ namespace Ioni\PayzenBundle\DependencyInjection;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Loader;
+use Symfony\Component\DependencyInjection\Reference;
 use Symfony\Component\HttpKernel\DependencyInjection\Extension;
 
 /**
@@ -36,5 +37,13 @@ class IoniPayzenExtension extends Extension
         $signatureHandlerDef->addMethodCall('setCertificateTest', [$config['certificates']['test'] ?? '']);
 
         $container->setParameter('payzen_return_route', $config['return_route']);
+
+        // replace TransactionFetcher argument
+        $transactionFetcher = $config['fetchers']['transaction_fetcher'];
+        if ($transactionFetcher !== 'ioni_payzen.fetchers.simple_transaction_fetcher') {
+            $container->removeDefinition('ioni_payzen.fetchers.simple_transaction_fetcher');
+            $payNotifHandlerDef = $container->getDefinition('ioni_payzen.payment_notification_handler');
+            $payNotifHandlerDef->replaceArgument(3, new Reference($transactionFetcher));
+        }
     }
 }

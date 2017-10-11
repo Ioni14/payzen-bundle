@@ -5,6 +5,8 @@ namespace Ioni\PayzenBundle\Service;
 use Doctrine\Common\Persistence\ManagerRegistry;
 use Ioni\PayzenBundle\Event\TransactionEvent;
 use Ioni\PayzenBundle\Exception\CorruptedPaymentNotificationException;
+use Ioni\PayzenBundle\Exception\TransactionNotFoundException;
+use Ioni\PayzenBundle\Fetchers\TransactionFetcherInterface;
 use Ioni\PayzenBundle\Model\Transaction;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -33,20 +35,28 @@ class PaymentNotificationHandler
     protected $registry;
 
     /**
+     * @var TransactionFetcherInterface
+     */
+    protected $transactionFetcher;
+
+    /**
      * PaymentNotificationHandler constructor.
      *
-     * @param SignatureHandler         $signatureHandler
-     * @param EventDispatcherInterface $dispatcher
-     * @param ManagerRegistry          $registry
+     * @param SignatureHandler            $signatureHandler
+     * @param EventDispatcherInterface    $dispatcher
+     * @param ManagerRegistry             $registry
+     * @param TransactionFetcherInterface $transactionFetcher
      */
     public function __construct(
         SignatureHandler $signatureHandler,
         EventDispatcherInterface $dispatcher,
-        ManagerRegistry $registry
+        ManagerRegistry $registry,
+        TransactionFetcherInterface $transactionFetcher
     ) {
         $this->signatureHandler = $signatureHandler;
         $this->dispatcher = $dispatcher;
         $this->registry = $registry;
+        $this->transactionFetcher = $transactionFetcher;
     }
 
     /**
@@ -82,8 +92,11 @@ class PaymentNotificationHandler
 //            return;
 //        }
 
-        /** @var Transaction $transaction */
-        $transaction = $this->registry->getRepository('IoniPayzenBundle:Transaction')->find($fields['vads_order_id']);
+        try {
+            $transaction = $this->transactionFetcher->findTransaction($fields['vads_order_id']);
+        } catch (TransactionNotFoundException $e) {
+            $transaction = null;
+        }
         if ($transaction === null) {
             $this->dispatcher->dispatch(TransactionEvent::UNFOUND_EVENT);
 

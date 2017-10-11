@@ -34,6 +34,11 @@ class Configuration implements ConfigurationInterface
                     ->end()
                 ->end()
                 ->scalarNode('return_route')->end()
+                ->arrayNode('fetchers')
+                    ->children()
+                        ->scalarNode('transaction_fetcher')->defaultValue('ioni_payzen.fetchers.simple_transaction_fetcher')->end()
+                    ->end()
+                ->end()
             ->end()
         ;
 
