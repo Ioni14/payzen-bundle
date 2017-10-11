@@ -44,6 +44,7 @@ class Transaction
 
     /**
      * Total amount in the smallest currency unit.
+     *
      * @see https://payzen.io/en-EN/form-payment/standard-payment/vads-amount.html
      *
      * @var int
@@ -67,6 +68,7 @@ class Transaction
     /**
      * 6 digits from 000000 to 899999.
      * Must be unique on one day.
+     *
      * @see https://payzen.io/en-EN/form-payment/standard-payment/vads-trans-id.html
      *
      * @var string
@@ -83,7 +85,8 @@ class Transaction
     protected $status;
 
     /**
-     * field vads_auth_result from Payzen
+     * field vads_auth_result from Payzen.
+     *
      * @see https://payzen.io/en-EN/form-payment/standard-payment/vads-auth-result.html
      *
      * @var string
@@ -403,7 +406,7 @@ class Transaction
     }
 
     /**
-     * Sums the quantity*amount of products
+     * Sums the quantity*amount of products.
      *
      * @return int
      */

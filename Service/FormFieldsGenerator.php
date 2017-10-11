@@ -63,6 +63,9 @@ class FormFieldsGenerator
 
     /**
      * FormFieldsGenerator constructor.
+     *
+     * @param UrlGeneratorInterface $router
+     * @param SignatureHandler      $signatureHandler
      */
     public function __construct(UrlGeneratorInterface $router, SignatureHandler $signatureHandler)
     {
@@ -287,6 +290,8 @@ class FormFieldsGenerator
     }
 
     /**
+     * TODO : create a TransactionViewFactory ?
+     *
      * @return TransactionView
      */
     public function createView(): TransactionView

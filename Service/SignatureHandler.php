@@ -66,10 +66,10 @@ class SignatureHandler
     }
 
     /**
-     * @param string $signature The signature has to be compared.
-     * @param array  $fields    The fields to computes into the other signature.
+     * @param string $signature the signature has to be compared
+     * @param array  $fields    the fields to computes into the other signature
      *
-     * @return bool true if the signatures are equals.
+     * @return bool true if the signatures are equals
      */
     public function isEquals(string $signature, array $fields): bool
     {

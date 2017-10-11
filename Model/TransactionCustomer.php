@@ -23,7 +23,7 @@ class TransactionCustomer extends TransactionIdentifiableData
     protected $customerId;
 
     /**
-     * Civility (Mr, Mrs...)
+     * Civility (Mr, Mrs...).
      *
      * @var string
      *

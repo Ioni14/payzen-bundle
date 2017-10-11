@@ -51,7 +51,7 @@ class SubscriptionInfos
 
     /**
      * Amount of frequency.
-     * Example : count=5, frequency=month => for 5 months
+     * Example : count=5, frequency=month => for 5 months.
      *
      * @var int 0 for infinity
      */
