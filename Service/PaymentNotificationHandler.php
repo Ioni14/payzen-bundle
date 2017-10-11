@@ -2,10 +2,10 @@
 
 namespace Ioni\PayzenBundle\Service;
 
+use Doctrine\Common\Persistence\ManagerRegistry;
 use Ioni\PayzenBundle\Event\TransactionEvent;
 use Ioni\PayzenBundle\Exception\CorruptedPaymentNotificationException;
 use Ioni\PayzenBundle\Model\Transaction;
-use Symfony\Bridge\Doctrine\RegistryInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -28,23 +28,22 @@ class PaymentNotificationHandler
     protected $dispatcher;
 
     /**
-     * @var RegistryInterface
+     * @var ManagerRegistry
      */
     protected $registry;
 
     /**
      * PaymentNotificationHandler constructor.
      *
-     * @param SignatureHandler $signatureHandler
+     * @param SignatureHandler         $signatureHandler
      * @param EventDispatcherInterface $dispatcher
-     * @param RegistryInterface $registry
+     * @param ManagerRegistry          $registry
      */
     public function __construct(
         SignatureHandler $signatureHandler,
         EventDispatcherInterface $dispatcher,
-        RegistryInterface $registry
-    )
-    {
+        ManagerRegistry $registry
+    ) {
         $this->signatureHandler = $signatureHandler;
         $this->dispatcher = $dispatcher;
         $this->registry = $registry;
@@ -52,6 +51,8 @@ class PaymentNotificationHandler
 
     /**
      * @param Request $request
+     *
+     * @throws CorruptedPaymentNotificationException
      */
     public function handle(Request $request)
     {
@@ -88,8 +89,6 @@ class PaymentNotificationHandler
             return;
         }
 
-        dump($transaction);
-
         if ($transaction->getStatus() !== Transaction::STATUS_WAITING) {
             // transaction has already updated
             return;
@@ -105,17 +104,12 @@ class PaymentNotificationHandler
         $transaction->setResultCode($fields['vads_auth_result']);
         $transaction->setResponse($fields);
 
-        /** @link https://payzen.io/fr-FR/form-payment/standard-payment/traiter-les-donnees-de-la-reponse.html */
+        /** @see https://payzen.io/fr-FR/form-payment/standard-payment/traiter-les-donnees-de-la-reponse.html */
         //$fields['vads_trans_status'] !== 'AUTHORISED';
-
-
-
 
         // TODO : service for TransactionErrors ?
 
         // traitement erreurs
-
-        dump('dispatch events');
 
         if ($transaction->getResultCode() !== '00') {
             $transaction->setStatus(Transaction::STATUS_REJECTED);
@@ -125,8 +119,6 @@ class PaymentNotificationHandler
             $transaction->setStatus(Transaction::STATUS_SUCCEEDED);
             $transaction = $this->dispatcher->dispatch(TransactionEvent::SUCCEEDED_EVENT, new TransactionEvent($transaction))->getTransaction();
         }
-
-        dump($transaction);
 
         $transaction->setUpdatedAt(new \DateTime());
         $manager = $this->registry->getManager();
