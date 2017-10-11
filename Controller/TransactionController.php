@@ -26,7 +26,7 @@ class TransactionController extends Controller
      */
     public function returnAction(Request $request): Response
     {
-        $this->get('logger')->addInfo('[IoniPayzenBundle] returnAction : request="'.json_encode($request->request).'"');
+        $this->get('logger')->addInfo('[IoniPayzenBundle] returnAction', ['request_params' => $request->request->all()]);
 
         $returnRoute = $this->getParameter('payzen_return_route');
         if ($returnRoute !== null) {
@@ -45,7 +45,7 @@ class TransactionController extends Controller
      */
     public function paymentNotificationAction(Request $request): Response
     {
-        $this->get('logger')->addInfo('[IoniPayzenBundle] paymentNotificationAction : request="'.json_encode($request->request).'"');
+        $this->get('logger')->addInfo('[IoniPayzenBundle] paymentNotificationAction', ['request_params' => $request->request->all()]);
 
         $handler = $this->get('ioni_payzen.payment_notification_handler');
         try {
