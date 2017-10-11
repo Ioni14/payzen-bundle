@@ -71,15 +71,16 @@ class PaymentNotificationHandler
             return;
         }
 
-        if (!isset($fields['vads_operation_type']) || $fields['vads_operation_type'] !== 'DEBIT') {
-            // we want only Debit operation
-            return;
-        }
-
         if (!isset($fields['vads_payment_config']) || $fields['vads_payment_config'] !== 'SINGLE') {
             // we want only Single payment, not multi
             return;
         }
+
+        // TODO : vads_operation_type does not exist for subscriptions
+//        if (!isset($fields['vads_operation_type']) || $fields['vads_operation_type'] !== 'DEBIT') {
+//            // we want only Debit operation
+//            return;
+//        }
 
         /** @var Transaction $transaction */
         $transaction = $this->registry->getRepository('IoniPayzenBundle:Transaction')->find($fields['vads_order_id']);
