@@ -153,8 +153,12 @@ class PaymentNotificationHandler
             $alias->setIdentifier($fields['vads_identifier']);
             $alias->setCardType($fields['vads_card_brand'] ?? null);
             $alias->setCardNumber($fields['vads_card_number'] ?? null);
-            $alias->setExpiryMonth($fields['vads_expiry_month'] ?? null);
-            $alias->setExpiryYear($fields['vads_expiry_year'] ?? null);
+            if (isset($fields['vads_expiry_month']) && $fields['vads_expiry_month'] !== '') {
+                $alias->setExpiryMonth((int) $fields['vads_expiry_month']);
+            }
+            if (isset($fields['vads_expiry_year']) && $fields['vads_expiry_year'] !== '') {
+                $alias->setExpiryYear((int) $fields['vads_expiry_year']);
+            }
         }
 
         /** @see https://payzen.io/fr-FR/form-payment/standard-payment/traiter-les-donnees-de-la-reponse.html */
