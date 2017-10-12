@@ -7,7 +7,7 @@ namespace Ioni\PayzenBundle\Exception;
  *
  * @author Thomas Talbot <talbot.thomas14@gmail.com>
  */
-class TransactionNotFoundException extends \UnexpectedValueException
+class TransactionNotFoundException extends \LogicException
 {
     public function __construct($transactionId)
     {
