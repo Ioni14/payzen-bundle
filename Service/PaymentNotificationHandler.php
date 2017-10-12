@@ -93,7 +93,7 @@ class PaymentNotificationHandler
 //        }
 
         try {
-            $transaction = $this->transactionFetcher->findTransaction($fields['vads_order_id']);
+            $transaction = $this->transactionFetcher->findTransaction($fields['vads_order_id'], $fields);
         } catch (TransactionNotFoundException $e) {
             $transaction = null;
         }

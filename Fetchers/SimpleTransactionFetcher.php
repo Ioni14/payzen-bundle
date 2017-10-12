@@ -34,7 +34,7 @@ final class SimpleTransactionFetcher implements TransactionFetcherInterface
      *
      * {@inheritdoc}
      */
-    public function findTransaction($id): Transaction
+    public function findTransaction($id, array $responseFields = []): Transaction
     {
         $transaction = $this->registry->getRepository('IoniPayzenBundle:Transaction')->find($id);
         if (!$transaction instanceof Transaction) {

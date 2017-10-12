@@ -12,9 +12,10 @@ use Ioni\PayzenBundle\Model\Transaction;
 interface TransactionFetcherInterface
 {
     /**
-     * @param $id
+     * @param mixed $id the transaction ID
+     * @param array $responseFields all Payzen response fields
      *
      * @return Transaction
      */
-    public function findTransaction($id): Transaction;
+    public function findTransaction($id, array $responseFields = []): Transaction;
 }
