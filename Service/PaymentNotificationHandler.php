@@ -19,6 +19,8 @@ use Symfony\Component\HttpFoundation\Request;
  */
 class PaymentNotificationHandler
 {
+    const RESULT_CODE_OK = '00';
+
     /**
      * @var SignatureHandler
      */
@@ -75,22 +77,12 @@ class PaymentNotificationHandler
         if (!isset($fields['vads_order_id'])) {
             throw new CorruptedPaymentNotificationException('No order id given in the response.');
         }
-
-        if (!isset($fields['vads_url_check_src']) || !in_array($fields['vads_url_check_src'], ['PAY', 'BO', 'REC'], true)) {
-            // we want only payment or recurrent payment notifications
-            return;
+        if (!isset($fields['vads_url_check_src'])) {
+            throw new CorruptedPaymentNotificationException('No check src given in the response.');
         }
-
-        if (!isset($fields['vads_payment_config']) || $fields['vads_payment_config'] !== 'SINGLE') {
-            // we want only Single payment, not multi
-            return;
+        if (!isset($fields['vads_auth_result'])) {
+            throw new CorruptedPaymentNotificationException('No auth result in the response.');
         }
-
-        // TODO : vads_operation_type does not exist for subscriptions
-//        if (!isset($fields['vads_operation_type']) || $fields['vads_operation_type'] !== 'DEBIT') {
-//            // we want only Debit operation
-//            return;
-//        }
 
         try {
             $transaction = $this->transactionFetcher->findTransaction($fields['vads_order_id'], $fields);
@@ -103,40 +95,122 @@ class PaymentNotificationHandler
             return;
         }
 
-        if ($transaction->getStatus() !== Transaction::STATUS_WAITING) {
-            // transaction has already updated
-            return;
-        }
-
         if (!isset($fields['vads_trans_id']) || $transaction->getNumber() !== $fields['vads_trans_id']) {
             throw new CorruptedPaymentNotificationException('Bad trans id in the response for the transaction '.$transaction->getId());
         }
-        if (!isset($fields['vads_auth_result'])) {
-            throw new CorruptedPaymentNotificationException('No auth result in the response.');
+
+        /** @see https://payzen.io/en-EN/form-payment/subscription-token/analyzing-the-nature-of-notification.html */
+        if ($fields['vads_url_check_src'] === 'REC') {
+            $res = $this->handleRecurrent($fields, $transaction);
+        } elseif (in_array($fields['vads_url_check_src'], ['PAY', 'BO'], true)) {
+            $res = $this->handlePayment($fields, $transaction);
+        } else {
+            // TODO : handle the other sources
+            return;
         }
 
-        $transaction->setResultCode($fields['vads_auth_result']);
-        $transaction->setResponse($fields);
-
-        /** @see https://payzen.io/fr-FR/form-payment/standard-payment/traiter-les-donnees-de-la-reponse.html */
-        //$fields['vads_trans_status'] !== 'AUTHORISED';
-
-        // TODO : service for TransactionErrors ?
-
-        // traitement erreurs
-
-        if ($transaction->getResultCode() !== '00') {
-            $transaction->setStatus(Transaction::STATUS_REJECTED);
-            $transaction = $this->dispatcher->dispatch(TransactionEvent::REJECTED_EVENT, new TransactionEvent($transaction))->getTransaction();
-        } else {
-            // success
-            $transaction->setStatus(Transaction::STATUS_SUCCEEDED);
-            $transaction = $this->dispatcher->dispatch(TransactionEvent::SUCCEEDED_EVENT, new TransactionEvent($transaction))->getTransaction();
+        if (!$res) {
+            // something bad happened
+            return;
         }
 
         $transaction->setUpdatedAt(new \DateTime());
         $manager = $this->registry->getManager();
         $manager->merge($transaction);
         $manager->flush();
+    }
+
+    /**
+     * @param array       $fields
+     * @param Transaction $transaction
+     *
+     * @return bool true if success
+     */
+    protected function handlePayment(array $fields, Transaction &$transaction): bool
+    {
+        if (!isset($fields['vads_payment_config']) || $fields['vads_payment_config'] !== 'SINGLE') {
+            // TODO : handle other payment_config
+            return false;
+        }
+        if (isset($fields['vads_operation_type']) && $fields['vads_operation_type'] !== 'DEBIT') {
+            // we want only Debit operation if this is a payment operation (not like REGISTER_SUBSCRIBE)
+            return false;
+        }
+
+        if ($transaction->getStatus() !== Transaction::STATUS_WAITING) {
+            // transaction has already updated
+            return false;
+        }
+
+        $transaction->setResultCode($fields['vads_auth_result']);
+        $transaction->setResponse($fields);
+
+        $alias = $transaction->getAlias();
+        if ($alias !== null
+            && isset($fields['vads_identifier_status'], $fields['vads_identifier'])
+            && in_array($fields['vads_identifier_status'], ['CREATED', 'UPDATED'], true)
+        ) {
+            $alias->setIdentifier($fields['vads_identifier']);
+            $alias->setCardType($fields['vads_card_brand'] ?? null);
+            $alias->setCardNumber($fields['vads_card_number'] ?? null);
+            $alias->setExpiryMonth($fields['vads_expiry_month'] ?? null);
+            $alias->setExpiryYear($fields['vads_expiry_year'] ?? null);
+        }
+
+        /** @see https://payzen.io/fr-FR/form-payment/standard-payment/traiter-les-donnees-de-la-reponse.html */
+        //$fields['vads_trans_status'] !== 'AUTHORISED';
+
+        // TODO : service for TransactionErrors ?
+        // errors handling
+
+        if ($transaction->getResultCode() === self::RESULT_CODE_OK) {
+            $transaction->setStatus(Transaction::STATUS_SUCCEEDED);
+            $transaction = $this->dispatcher->dispatch(TransactionEvent::SUCCEEDED_EVENT, new TransactionEvent($transaction))->getTransaction();
+        } else {
+            $transaction->setStatus(Transaction::STATUS_REJECTED);
+            $transaction = $this->dispatcher->dispatch(TransactionEvent::REJECTED_EVENT, new TransactionEvent($transaction))->getTransaction();
+        }
+
+        return true;
+    }
+
+    /**
+     * @param array       $fields
+     * @param Transaction $transaction
+     *
+     * @return bool true if success
+     */
+    protected function handleRecurrent(array $fields, Transaction &$transaction): bool
+    {
+        if ($transaction->getSubscriptionInfos() === null) {
+            // inconsistency transaction
+            return false;
+        }
+        if ($transaction->getStatus() !== Transaction::STATUS_SUCCEEDED) {
+            // transaction not valid
+            return false;
+        }
+        if (!isset($fields['vads_recurrence_number'])) {
+            return false;
+        }
+        if (!isset($fields['vads_operation_type']) || $fields['vads_operation_type'] !== 'DEBIT') {
+            // we want only Debit operation
+            return false;
+        }
+
+        $transaction->getSubscriptionInfos()->addResponse($fields);
+
+        // TODO : service for TransactionErrors ?
+
+        // traitement erreurs
+
+        if ($transaction->getResultCode() === self::RESULT_CODE_OK) {
+            $transaction->getSubscriptionInfos()->setLastRecurrenceNumber((int) $fields['vads_recurrence_number']);
+            $transaction = $this->dispatcher->dispatch(TransactionEvent::SUCCEEDED_RECURRENT_EVENT, new TransactionEvent($transaction))->getTransaction();
+        } else {
+            $transaction = $this->dispatcher->dispatch(TransactionEvent::REJECTED_RECURRENT_EVENT, new TransactionEvent($transaction))->getTransaction();
+        }
+
+        return true;
     }
 }

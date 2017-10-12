@@ -71,11 +71,27 @@ class SubscriptionInfos
      */
     protected $interval;
 
+    /**
+     * The last number of handled recurrences
+     *
+     * @var int
+     */
+    protected $lastRecurrenceNumber;
+
+    /**
+     * The "REC" fields returned by the platform.
+     *
+     * @var array
+     */
+    protected $responses;
+
     public function __construct()
     {
         $this->interval = 1;
         $this->count = 0;
         $this->beginDate = new \DateTime();
+        $this->lastRecurrenceNumber = 0;
+        $this->responses = [];
     }
 
     /**
@@ -191,5 +207,45 @@ class SubscriptionInfos
     public function setInterval(int $interval)
     {
         $this->interval = $interval;
+    }
+
+    /**
+     * Get LastRecurrenceNumber.
+     *
+     * @return int
+     */
+    public function getLastRecurrenceNumber(): int
+    {
+        return $this->lastRecurrenceNumber;
+    }
+
+    /**
+     * Set LastRecurrenceNumber.
+     *
+     * @param int $lastRecurrenceNumber
+     */
+    public function setLastRecurrenceNumber(int $lastRecurrenceNumber)
+    {
+        $this->lastRecurrenceNumber = $lastRecurrenceNumber;
+    }
+
+    /**
+     * Get Responses.
+     *
+     * @return array
+     */
+    public function getResponses(): array
+    {
+        return $this->responses;
+    }
+
+    /**
+     * Add Response.
+     *
+     * @param array $response
+     */
+    public function addResponse(array $response)
+    {
+        $this->responses[] = $response;
     }
 }

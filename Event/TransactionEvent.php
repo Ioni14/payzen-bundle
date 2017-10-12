@@ -15,6 +15,8 @@ class TransactionEvent extends Event
 {
     const REJECTED_EVENT = 'ioni_payzen.transaction.rejected';
     const SUCCEEDED_EVENT = 'ioni_payzen.transaction.succeeded';
+    const REJECTED_RECURRENT_EVENT = 'ioni_payzen.transaction.rejected_recurrent';
+    const SUCCEEDED_RECURRENT_EVENT = 'ioni_payzen.transaction.succeeded_recurrent';
     const UNFOUND_EVENT = 'ioni_payzen.transaction.unfound';
 
     /**

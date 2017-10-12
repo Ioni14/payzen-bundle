@@ -23,3 +23,9 @@ Ioni\PayzenBundle\Model\SubscriptionInfos:
         interval:
             type: integer
             nullable: true
+        lastRecurrenceNumber:
+            type: integer
+            nullable: true
+        responses:
+            type: json_array
+            nullable: true
