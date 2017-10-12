@@ -52,3 +52,7 @@ Ioni\PayzenBundle\Model\Transaction:
             targetEntity: Ioni\PayzenBundle\Model\TransactionProduct
             mappedBy: transaction
             cascade: ['persist', 'remove']
+    manyToOne:
+        alias:
+            targetEntity: Ioni\PayzenBundle\Model\Alias
+            cascade: ['persist']

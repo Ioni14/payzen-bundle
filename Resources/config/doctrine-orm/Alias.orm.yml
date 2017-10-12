@@ -1,0 +1,29 @@
+Ioni\PayzenBundle\Model\Alias:
+    type: entity
+    table: ioni_payzen_alias
+    id:
+        id:
+            type: integer
+            generator:
+                strategy: AUTO
+    fields:
+        identifier:
+            type: string
+            length: 32
+            nullable: true
+            options:
+                fixed: true
+        cardType:
+            type: string
+            length: 31
+            nullable: true
+        cardNumber:
+            type: string
+            length: 36
+            nullable: true
+        expiryMonth:
+            type: integer
+            nullable: true
+        expiryYear:
+            type: integer
+            nullable: true

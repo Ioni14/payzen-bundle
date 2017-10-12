@@ -21,11 +21,6 @@ class Alias
     protected $identifier;
 
     /**
-     * @var string
-     */
-    protected $email;
-
-    /**
      * @see https://payzen.io/fr-FR/form-payment/subscription-token/vads-card-brand.html
      *
      * @var string
@@ -69,22 +64,6 @@ class Alias
     public function setIdentifier(string $identifier = null)
     {
         $this->identifier = $identifier;
-    }
-
-    /**
-     * @return null|string
-     */
-    public function getEmail()
-    {
-        return $this->email;
-    }
-
-    /**
-     * @param null|string $email
-     */
-    public function setEmail(string $email = null)
-    {
-        $this->email = $email;
     }
 
     /**
