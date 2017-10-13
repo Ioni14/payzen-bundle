@@ -95,10 +95,6 @@ class PaymentNotificationHandler
             return;
         }
 
-        if (!isset($fields['vads_trans_id']) || $transaction->getNumber() !== $fields['vads_trans_id']) {
-            throw new CorruptedPaymentNotificationException('Bad trans id in the response for the transaction '.$transaction->getId());
-        }
-
         /** @see https://payzen.io/en-EN/form-payment/subscription-token/analyzing-the-nature-of-notification.html */
         if ($fields['vads_url_check_src'] === 'REC') {
             $res = $this->handleRecurrent($fields, $transaction);
@@ -125,9 +121,14 @@ class PaymentNotificationHandler
      * @param Transaction $transaction
      *
      * @return bool true if success
+     *
+     * @throws CorruptedPaymentNotificationException
      */
     protected function handlePayment(array $fields, Transaction &$transaction): bool
     {
+        if (!isset($fields['vads_trans_id']) || $transaction->getNumber() !== $fields['vads_trans_id']) {
+            throw new CorruptedPaymentNotificationException('Bad trans id in the response for the transaction '.$transaction->getId());
+        }
         if (!isset($fields['vads_payment_config']) || $fields['vads_payment_config'] !== 'SINGLE') {
             // TODO : handle other payment_config
             return false;
