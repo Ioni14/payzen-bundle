@@ -74,7 +74,7 @@ class SignatureHandler
      *
      * @return string the certificate
      */
-    protected function getCertificate(): string
+    public function getCertificate(): string
     {
         switch ($this->ctxMode) {
             case self::MODE_TEST:

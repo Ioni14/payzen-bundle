@@ -1,6 +1,10 @@
 Ioni\PayzenBundle\Model\SubscriptionInfos:
     type: embeddable
     fields:
+        identifier:
+            type: string
+            length: 31
+            nullable: true
         amount:
             type: integer
             nullable: true

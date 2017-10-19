@@ -162,6 +162,10 @@ class PaymentNotificationHandler
             }
         }
 
+        if (isset($fields['vads_subscription']) && $transaction->getSubscriptionInfos() !== null) {
+            $transaction->getSubscriptionInfos()->setIdentifier($fields['vads_subscription']);
+        }
+
         /** @see https://payzen.io/fr-FR/form-payment/standard-payment/traiter-les-donnees-de-la-reponse.html */
         //$fields['vads_trans_status'] !== 'AUTHORISED';
 

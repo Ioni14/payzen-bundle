@@ -4,6 +4,7 @@ parameters:
     ioni_payzen.form_fields_generator.class: Ioni\PayzenBundle\Service\FormFieldsGenerator
     ioni_payzen.payment_notification_handler.class: Ioni\PayzenBundle\Service\PaymentNotificationHandler
     ioni_payzen.fetchers.simple_transaction_fetcher.class: Ioni\PayzenBundle\Fetchers\SimpleTransactionFetcher
+    ioni_payzen.webservice.class: Ioni\PayzenBundle\Service\Webservice
 
 services:
     ioni_payzen.twig.twig_extension:
@@ -27,3 +28,7 @@ services:
     ioni_payzen.payment_notification_handler:
         class: '%ioni_payzen.payment_notification_handler.class%'
         arguments: ['@ioni_payzen.signature_handler', '@event_dispatcher', '@doctrine', '@ioni_payzen.fetchers.simple_transaction_fetcher']
+
+    ioni_payzen.webservice:
+        class: '%ioni_payzen.webservice.class%'
+        arguments: ['https://secure.payzen.eu/vads-ws/v5?wsdl', '@ioni_payzen.signature_handler']

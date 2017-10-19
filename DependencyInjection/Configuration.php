@@ -27,7 +27,7 @@ class Configuration implements ConfigurationInterface
                 ->enumNode('ctx_mode')->values(SignatureHandler::MODES)->defaultValue(SignatureHandler::MODE_TEST)->cannotBeEmpty()->end()
                 ->scalarNode('trans_numbers_path')->defaultValue('%kernel.root_dir%/../var/payzen/trans_numbers')->cannotBeEmpty()->end()
                 ->scalarNode('wsdl')->defaultValue('https://secure.payzen.eu/vads-ws/v5?wsdl')->end()
-//                ->scalarNode('namespace')->end()
+                ->scalarNode('namespace')->defaultValue('http://v5.ws.vads.lyra.com/Header/')->end()
                 ->arrayNode('certificates')
                     ->children()
                         ->scalarNode('prod')->end()

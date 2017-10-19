@@ -18,6 +18,13 @@ class SubscriptionInfos
     const FREQS = [self::FREQ_DAY, self::FREQ_WEEK, self::FREQ_MONTH, self::FREQ_YEAR];
 
     /**
+     * Payzen Subscription ID (vads_subscription)
+     *
+     * @var string
+     */
+    protected $identifier;
+
+    /**
      * @var int
      *
      * @Assert\NotBlank()
@@ -85,6 +92,9 @@ class SubscriptionInfos
      */
     protected $responses;
 
+    /**
+     * SubscriptionInfos constructor.
+     */
     public function __construct()
     {
         $this->interval = 1;
@@ -92,6 +102,26 @@ class SubscriptionInfos
         $this->beginDate = new \DateTime();
         $this->lastRecurrenceNumber = 0;
         $this->responses = [];
+    }
+
+    /**
+     * Get Identifier.
+     *
+     * @return null|string
+     */
+    public function getIdentifier()
+    {
+        return $this->identifier;
+    }
+
+    /**
+     * Set Identifier.
+     *
+     * @param string $identifier
+     */
+    public function setIdentifier(string $identifier)
+    {
+        $this->identifier = $identifier;
     }
 
     /**

@@ -36,6 +36,11 @@ class IoniPayzenExtension extends Extension
         $signatureHandlerDef->addMethodCall('setCertificateProd', [$config['certificates']['prod'] ?? '']);
         $signatureHandlerDef->addMethodCall('setCertificateTest', [$config['certificates']['test'] ?? '']);
 
+        $webserviceHandlerDef = $container->getDefinition('ioni_payzen.webservice');
+        $webserviceHandlerDef->addMethodCall('setSiteId', [$config['site_id']]);
+        $webserviceHandlerDef->addMethodCall('setNamespace', [$config['namespace']]);
+        $webserviceHandlerDef->replaceArgument(0, $config['wsdl']);
+
         $container->setParameter('payzen_return_route', $config['return_route']);
 
         // replace TransactionFetcher argument
